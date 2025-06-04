@@ -1,4 +1,11 @@
 <?php
+
+session_start();
+if (!isset($_SESSION['username'])) {
+    header('Location: login.php');
+    exit;
+}
+
 require 'db.php';
 
 $received_from = $_GET['received_from'] ?? '';
@@ -41,7 +48,12 @@ $meishi_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
-
+<div class="text-right mb-4">
+  <div class="text-right mb-4">
+      <span class="mr-4 text-sm">ようこそ、<?= htmlspecialchars($_SESSION['username']) ?> さん</span>
+      <a href="logout.php" class="bg-gray-600 text-white px-3 py-1 rounded hover:bg-gray-700">ログアウト</a>
+  </div>
+</div>
 <div class="max-w-7xl mx-auto p-6">
   <img src="title.png" alt="タイトル画像" class="h-12 mb-6">
 
@@ -104,13 +116,6 @@ $meishi_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
   <div class="bg-white p-4 rounded shadow-lg relative max-w-full w-[90%] md:w-[500px]" @click.away="show = false">
     <button class="absolute top-2 right-2 text-gray-500 hover:text-black" @click="show = false">✕</button>
 
-    <div class="mb-4 text-center">
-      <button @click="side = (side === 'front' ? 'back' : 'front')"
-              class="px-4 py-1 rounded bg-blue-600 text-white">
-        表/裏 切替
-      </button>
-    </div>
-
     <!-- 表面表示 -->
     <div x-show="side === 'front'" class="text-center h-[400px] flex items-center justify-center">
       <img src="<?= $m['image_front'] ?>"
@@ -122,6 +127,14 @@ $meishi_list = $stmt->fetchAll(PDO::FETCH_ASSOC);
       <img src="<?= $m['image_back'] ?>"
            class="max-h-full max-w-full object-contain rounded shadow">
     </div>
+
+    <div class="mb-4 text-center">
+      <button @click="side = (side === 'front' ? 'back' : 'front')"
+              class="px-4 py-1 rounded bg-blue-600 text-white">
+        表/裏 切替
+      </button>
+    </div>
+
   </div>
 </div>
 
