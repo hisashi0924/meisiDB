@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  php:
+    build: ./php
+    container_name: php
+    ports:
+      - "38080:80"
+    volumes:
+      - ./app:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: meishi_db
+      POSTGRES_USER: meishi_user
+      POSTGRES_PASSWORD: secret
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "25432:5432"
+
+volumes:
+  db_data:
+
