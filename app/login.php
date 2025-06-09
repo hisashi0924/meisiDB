@@ -1,5 +1,6 @@
 <?php
 session_start();
+require 'db.php'; // ← PDO接続が含まれている前提
 
 $error = '';
 
@@ -9,15 +10,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
 
-    // LDAP 接続
     $ldap_conn = ldap_connect($ldap_host);
     ldap_set_option($ldap_conn, LDAP_OPT_PROTOCOL_VERSION, 3);
     ldap_set_option($ldap_conn, LDAP_OPT_REFERRALS, 0);
 
     if ($ldap_conn) {
-        $bind_dn = "itsol\\$username";  // Samba4の場合、ドメイン名\\ユーザー名形式が多いです
+        $bind_dn = "itsol\\$username";
+
         if (@ldap_bind($ldap_conn, $bind_dn, $password)) {
+            // displayName を取得
+            $search_filter = "(sAMAccountName=$username)";
+            $attributes = ["displayName", "cn"];
+            $result = @ldap_search($ldap_conn, $ldap_dn_base, $search_filter, $attributes);
+
+            if ($result !== false) {
+                $entries = ldap_get_entries($ldap_conn, $result);
+                if ($entries["count"] > 0) {
+                    $display_name = $entries[0]["displayname"][0] ?? $entries[0]["cn"][0] ?? $username;
+                } else {
+                    $display_name = $username;
+                }
+            } else {
+                $display_name = $username;
+            }
+
+            // セッション保存
             $_SESSION['username'] = $username;
+            $_SESSION['display_name'] = $display_name;
+
+            // DBに保存（存在すれば更新）
+            $stmt = $pdo->prepare("
+                INSERT INTO users (username, display_name)
+                VALUES (:username, :display_name)
+                ON CONFLICT (username)
+                DO UPDATE SET display_name = EXCLUDED.display_name
+            ");
+            $stmt->execute([
+                ':username' => $username,
+                ':display_name' => $display_name
+            ]);
+
             header('Location: index.php');
             exit;
         } else {
