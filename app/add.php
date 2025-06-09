@@ -14,8 +14,10 @@
 
         <div>
             <label class="block font-semibold mb-1">受領日</label>
-            <input type="date" name="received_date" class="w-full border rounded p-2" required>
+            <input type="date" name="received_date" id="received_date" class="w-full border rounded p-2" required>
         </div>
+
+
 
         <div>
             <label class="block font-semibold mb-1">会社名</label>
@@ -28,11 +30,13 @@
         </div>
 
         <div>
-            <label>電話番号: <input type="tel" name="tel" class="w-full border rounded p-2"></label><br>
+            <label class="block font-semibold mb-1">電話番号</label>
+            <input type="text" name="tel" class="w-full border rounded p-2">
         </div>
 
         <div>
-            <label>メールアドレス: <input type="email" name="email" class="w-full border rounded p-2"></label><br>
+            <label class="block font-semibold mb-1">メールアドレス</label>
+            <input type="text" name="email" class="w-full border rounded p-2">
         </div>
 
         <div>
@@ -44,13 +48,17 @@
             <label class="block font-semibold mb-1">名刺画像（表）</label>
             <input type="file" name="image_front" class="block w-full text-sm">
         </div>
-
         <div>
             <label class="block font-semibold mb-1">名刺画像（裏）</label>
             <input type="file" name="image_back" class="block w-full text-sm">
         </div>
+        <div>
+            <label class="block font-semibold mb-1">公開する</label>
+            <input type="checkbox" name="is_public" class="mr-2" checked>
+        </div>
 
         <div class="text-right">
+            <button onclick="history.back()" class="inline-block bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700">戻る</button>
             <button type="submit" class="inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">登録</button>
         </div>
     </form>
@@ -58,4 +66,13 @@
 
 </body>
 </html>
-
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0'); // 月は0から始まるので+1
+    const dd = String(today.getDate()).padStart(2, '0');
+    const formattedDate = `${yyyy}-${mm}-${dd}`;
+    document.getElementById("received_date").value = formattedDate;
+  });
+</script>
